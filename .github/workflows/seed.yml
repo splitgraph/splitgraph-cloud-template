@@ -1,0 +1,32 @@
+name: Generate Splitgraph project
+on:
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: 'Project seed (`ey...`)'
+        required: true
+      deployment_url:
+        description: "Splitgraph deployment URL"
+        required: false
+        default: splitgraph.com
+jobs:
+  seed:
+    name: Generate the project
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Configure Git
+      run: |
+        git config --local user.name "GitHub Actions"
+    - name: Set up Splitgraph
+      uses: splitgraph/setup-splitgraph@master
+      with:
+        splitgraph_deployment_url: ${{ github.event.inputs.deployment_url }}
+        splitgraph_api_key: ${{ secrets.SPLITGRAPH_API_KEY }}
+        splitgraph_api_secret: ${{ secrets.SPLITGRAPH_API_SECRET }}
+    - name: Run sgr cloud seed
+      run: sgr cloud seed ${{ github.event.inputs.seed }}
+    - name: Commit and push the changes
+      run: |
+        git add .
+        git commit --message "Generate initial project"
