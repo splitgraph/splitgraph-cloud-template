@@ -31,11 +31,13 @@ jobs:
         splitgraph_api_key: ${{ secrets.SPLITGRAPH_API_KEY }}
         splitgraph_api_secret: ${{ secrets.SPLITGRAPH_API_SECRET }}
     - name: Run sgr cloud seed
-      run: ./sgr cloud seed ${{ github.event.inputs.seed }}
+      run: |
+        ./sgr cloud seed --remote splitgraph --github-repository $GITHUB_REPOSITORY ${{ github.event.inputs.seed }}
+        { echo "# Move this file to .github/workflows/build.yml"; cat .github/workflows/build.yml } > build.moveme.yml
+        rm .github/workflows/build.yml
     - name: Commit and push the changes
       run: |
         rm sgr
-        mv .github/workflows/build.yml
         git add .
         git commit --message "Generate initial project"
         git push
